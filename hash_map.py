@@ -1,7 +1,9 @@
 # Course: CS261 - Data Structures
 # Assignment: 5
-# Student:
-# Description:
+# Student: Na Kim
+# Description: This written program will implement a HashMap class through the following
+# methods: put,get,remove,contains_key,clear,empty_buckets,resize_table,table_load,and
+# get_keys.
 
 
 # Import pre-written DynamicArray and LinkedList classes
@@ -58,57 +60,138 @@ class HashMap:
 
     def clear(self) -> None:
         """
-        TODO: Write this implementation
+        this function will clear the content of the hash map without changing the capacity
         """
-        pass
+        for i in range(self.capacity):
+            self.buckets[i] = LinkedList()
+        # update and set size to 0 to clear content of the hash map
+        self.size = 0
+
 
     def get(self, key: str) -> object:
         """
-        TODO: Write this implementation
+        this function will return the value associated with the given key
         """
-        return None
+        hash = self.hash_function(key)
+        hash_index = hash % self.capacity
+        val = self.buckets.get_at_index(hash_index).contains(key)
+
+        # if the key is not in the hashmap, return None
+        if self.buckets.get_at_index(hash_index).length() == 0:
+            return None
+        if val:
+            return val.value
+        else:
+            return None
 
     def put(self, key: str, value: object) -> None:
         """
-        TODO: Write this implementation
+        this function will update the key/value pair in the hash map
         """
-        pass
+        hash = self.hash_function(key)
+        hash_index = hash % self.capacity
+
+        # if given key already exists in hash map
+        if self.buckets.get_at_index(hash_index).contains(key):
+            # remove associated value
+            self.buckets.get_at_index(hash_index).remove(key)
+            # replace old value with new value
+            self.buckets.get_at_index(hash_index).insert(key,value)
+
+        # if given key is not in the hash map
+        elif self.buckets.get_at_index(hash_index).contains(key) is None:
+            # add new key/value
+            self.buckets.get_at_index(hash_index).insert(key,value)
+            # add new key to overall count/size
+            self.size +=1
+
 
     def remove(self, key: str) -> None:
         """
-        TODO: Write this implementation
+        this function removes given key and its associated value from the hashmap
         """
-        pass
+        hash = self.hash_function(key)
+        hash_index = hash % self.capacity
+        val = self.buckets.get_at_index(hash_index)
+
+        if val.remove(key):
+            self.size -=1
+
 
     def contains_key(self, key: str) -> bool:
         """
-        TODO: Write this implementation
+        this function checks to see if given key is in the hash map
         """
-        return False
+        hash = self.hash_function(key)
+        hash_index = hash % self.capacity
+
+        # if the hash map is empty and does not contain any keys
+        if self.buckets.length() == 0:
+            return False
+        # if the given key is not in the hash map, return False
+        if self.buckets.get_at_index(hash_index).contains(key) is None:
+            return False
+        # if the given key is in the hash map, return True
+        elif self.buckets.get_at_index(hash_index).contains(key):
+            return True
 
     def empty_buckets(self) -> int:
         """
-        TODO: Write this implementation
+        this function will return the number of empty buckets in the hash table
         """
-        return 0
+        count = 0
+        for i in range(self.buckets.length()):
+            if self.buckets.get_at_index(i).length() == 0:
+                count +=1
+        return count
 
     def table_load(self) -> float:
         """
-        TODO: Write this implementation
+        this function will return the current hash table load factor
         """
-        return 0.0
+        # load factor of hash table is calculated by (total # of elements stored) / ( number of buckets)
+        return self.size / self.capacity
+
 
     def resize_table(self, new_capacity: int) -> None:
         """
-        TODO: Write this implementation
+        this function will change the capacity of the internal hash table
         """
-        pass
+        # if the new_capacity is less than 1, return and method should not do anything
+        if new_capacity < 1:
+            return
+        # initialize new dynamic array and linkedlist
+        new_val = DynamicArray()
+        for temp in range(new_capacity):
+            new_val.append(LinkedList())
+        # takes keys and inserts into linkedlist
+        for i in range(0,self.capacity):
+            for index in self.buckets.get_at_index(i):
+                if index != None:
+                    hash = self.hash_function(index.key)
+                    hash_index = hash % new_capacity
+                    new_val.get_at_index(hash_index).insert(index.key,index.value) # insert into new dynamic array
+
+        # update capacity and buckets
+        self.capacity = new_capacity
+        self.buckets = new_val
+        return
+
 
     def get_keys(self) -> DynamicArray:
         """
-        TODO: Write this implementation
+        this function will return a Dynamic Array that contains the keys stored in the hash map
         """
-        return DynamicArray()
+        # set up Dynamic Array
+        return_val = DynamicArray()
+
+        # iterates through loop and stores key values
+        for i in range(self.capacity):
+            val = self.buckets.get_at_index(i)
+            for index in val: # append key to new dynamic array
+                return_val.append(index.key)
+        # returns values of keys
+        return return_val
 
 
 # BASIC TESTING
